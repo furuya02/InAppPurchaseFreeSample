@@ -7,9 +7,12 @@
 //
 
 #import <UIKit/UIKit.h>
+#import "CargoBay.h"
 
 @interface ViewController : UIViewController
 
+- (void) purchased:(SKPaymentTransaction *)transaction;// 購入完了の処理
+- (void) appendLog:(NSString *)log; // ログの追加
 
 @end
 

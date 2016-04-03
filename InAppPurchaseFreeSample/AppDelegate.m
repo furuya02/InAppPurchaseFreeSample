@@ -7,6 +7,7 @@
 //
 
 #import "AppDelegate.h"
+#import "CargoBay.h"
 
 @interface AppDelegate ()
 
@@ -17,6 +18,50 @@
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
     // Override point for customization after application launch.
+    // レスポンスを受け取る
+    [[CargoBay sharedManager] setPaymentQueueUpdatedTransactionsBlock:^(SKPaymentQueue *queue, NSArray *transactions) {
+        for (SKPaymentTransaction *transaction in transactions){ // 複数のトランザクションを受け取る場合がある
+            NSArray *statusString = @[@"Purchasing",@"Purchased",@"Failed",@"Restored",@"Deferred"];
+            NSString *log = [NSString stringWithFormat:@"\n>レスポンス Status=%@",statusString[transaction.transactionState]];
+            [_viewController appendLog:log]; // ログの追加
+
+            switch (transaction.transactionState) { // ステータスによって処理を分岐する
+                case SKPaymentTransactionStatePurchasing:
+                    //進行中
+                    break;
+                case SKPaymentTransactionStatePurchased:
+                    //購入処理
+
+                    [_viewController purchased:transaction]; //トランザクションの確認
+
+                    [queue finishTransaction:transaction]; // トランザクションの終了
+                    break;
+                case SKPaymentTransactionStateFailed:
+                    //失敗
+                    [queue finishTransaction:transaction]; // トランザクションの終了
+                    break;
+                case SKPaymentTransactionStateRestored:
+                    //リストア
+
+                    [_viewController purchased:transaction]; //トランザクションの確認
+
+                    [queue finishTransaction:transaction]; // トランザクションの終了
+                    break;
+                case SKPaymentTransactionStateDeferred:
+                    //エラー
+                    [queue finishTransaction:transaction]; // トランザクションの終了
+                    break;
+            }
+        }
+    }];
+
+
+
+    //オブザーバー登録
+    [[SKPaymentQueue defaultQueue] addTransactionObserver:[CargoBay sharedManager]];
+    
+    
+
     return YES;
 }
 
