@@ -50,7 +50,7 @@
                                                       [self appendLog:@"\n[無効なプロダクト]"];
                                                       for( SKProduct *product in invalidIdentifiers){
                                                           [self appendLog:@"\nプロダクト名:"];
-                                                          [self appendLog:product.productIdentifier];
+                                                          [self appendLog:product];
                                                       }
                                                   }
                                               } failure:^(NSError *error) {
